@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="emerald">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Credit Card Fraud Detection{% endblock %}</title>
+  <meta name="description" content="CMP7005 - Credit Card Fraud Detection using Machine Learning">
+
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-700">
+
+  <!-- Navbar -->
+  <div class="navbar bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto w-full px-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <!-- Mobile menu -->
+        <div class="dropdown lg:hidden" x-data="{ open: false }">
+          <label tabindex="0" class="btn btn-ghost btn-sm" @click="open = !open">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"/>
+            </svg>
+          </label>
+          <ul x-show="open" @click.away="open = false" x-transition
+            class="menu menu-sm dropdown-content mt-2 z-[1] p-2 shadow-lg bg-white rounded-xl border border-slate-100 w-52">
+            <li><a href="/" class="{% if active == 'overview' %}active{% endif %}">Overview</a></li>
+            <li><a href="/eda" class="{% if active == 'eda' %}active{% endif %}">EDA</a></li>
+            <li><a href="/prediction" class="{% if active == 'prediction' %}active{% endif %}">Prediction</a></li>
+          </ul>
+        </div>
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 text-lg font-bold text-slate-800">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+          </div>
+          <span>FraudGuard</span>
+        </a>
+      </div>
+
+      <!-- Desktop nav -->
+      <ul class="hidden lg:flex items-center gap-1">
+        <li>
+          <a href="/"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-all
+            {% if active == 'overview' %}bg-emerald-50 text-emerald-700{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-700{% endif %}">
+            Overview
+          </a>
+        </li>
+        <li>
+          <a href="/eda"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-all
+            {% if active == 'eda' %}bg-emerald-50 text-emerald-700{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-700{% endif %}">
+            EDA
+          </a>
+        </li>
+        <li>
+          <a href="/prediction"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-all
+            {% if active == 'prediction' %}bg-emerald-50 text-emerald-700{% else %}text-slate-500 hover:bg-slate-100 hover:text-slate-700{% endif %}">
+            Prediction
+          </a>
+        </li>
+      </ul>
+
+      <span class="badge badge-ghost text-xs hidden sm:inline-flex text-slate-400 border-slate-200">CMP7005</span>
+    </div>
+  </div>
+
+  <!-- Page -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-slate-400">
+      <p class="font-medium text-slate-500 mb-1">Credit Card Fraud Detection</p>
+      <p class="text-xs">CMP7005 Assignment &ndash; Flask &middot; Tailwind CSS &middot; DaisyUI</p>
+      <p class="text-xs mt-1 text-slate-300">Python &middot; scikit-learn &middot; Random Forest &middot; SMOTE &middot; GridSearchCV</p>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div x-data="lightbox()" x-on:open-lightbox.window="open($event.detail)" x-cloak>
+    <div x-show="visible" x-transition.opacity.duration.200ms
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-6"
+      @click="close()">
+      <div class="relative max-w-5xl w-full" @click.stop>
+        <img :src="src" :alt="alt"
+          class="w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl bg-white p-2">
+        <button @click="close()"
+          class="absolute -top-3 -right-3 btn btn-circle btn-sm bg-white border-slate-200 shadow-md hover:bg-slate-50 text-slate-500">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function lightbox() {
+      return {
+        visible: false, src: '', alt: '',
+        open(d) { this.src = d.src; this.alt = d.alt || ''; this.visible = true; document.body.style.overflow = 'hidden'; },
+        close() { this.visible = false; document.body.style.overflow = ''; }
+      };
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

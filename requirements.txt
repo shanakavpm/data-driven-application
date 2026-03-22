@@ -4,6 +4,5 @@ matplotlib
 seaborn
 scikit-learn
 imbalanced-learn
-streamlit
-plotly
+flask
 joblib

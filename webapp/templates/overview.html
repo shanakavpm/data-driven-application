@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Data Overview - FraudGuard{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl px-8 py-10 mb-8 text-center shadow-sm">
+  <h1 class="text-3xl font-bold text-white tracking-tight">Credit Card Fraud Detection</h1>
+  <p class="text-emerald-100 mt-2 text-sm">CMP7005 Assignment &ndash; Data Overview &amp; Understanding</p>
+</div>
+
+<!-- Key Metrics -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+  <div class="bg-white rounded-2xl border border-slate-100 p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+    <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-3">
+      <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+    </div>
+    <p class="text-2xl font-bold text-slate-800">{{ "{:,}".format(ds.total_rows) }}</p>
+    <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Transactions</p>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-100 p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+    <div class="w-11 h-11 rounded-xl bg-violet-50 flex items-center justify-center mx-auto mb-3">
+      <svg class="w-6 h-6 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+      </svg>
+    </div>
+    <p class="text-2xl font-bold text-slate-800">{{ ds.total_columns }}</p>
+    <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Features</p>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-100 p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+    <div class="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center mx-auto mb-3">
+      <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+      </svg>
+    </div>
+    <p class="text-2xl font-bold text-red-600">{{ "{:,}".format(ds.fraud_count) }}</p>
+    <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Fraudulent</p>
+  </div>
+
+  <div class="bg-white rounded-2xl border border-slate-100 p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+    <div class="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center mx-auto mb-3">
+      <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+      </svg>
+    </div>
+    <p class="text-2xl font-bold text-amber-600">{{ ds.fraud_pct }}%</p>
+    <p class="text-xs text-slate-400 uppercase tracking-wider mt-1">Fraud Rate</p>
+  </div>
+</div>
+
+<!-- Insight -->
+<div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-8 flex gap-3 items-start">
+  <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+  </div>
+  <p class="text-sm text-emerald-800 leading-relaxed">
+    <strong>Key Insight:</strong> The dataset is <strong>highly imbalanced</strong> &ndash;
+    only {{ ds.fraud_pct }}% of transactions are fraudulent. A naive classifier
+    predicting all as legitimate achieves ~98% accuracy. We use
+    <strong>SMOTE</strong> oversampling and <strong>threshold optimisation</strong> to address this.
+  </p>
+</div>
+
+<!-- Feature Descriptions -->
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm mb-8 overflow-hidden">
+  <div class="px-6 py-5 border-b border-slate-100">
+    <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+      <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+      </svg>
+      Feature Descriptions
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="table table-sm">
+      <thead>
+        <tr class="bg-slate-50 text-slate-500 text-xs uppercase">
+          <th>#</th><th>Column</th><th>Type</th><th>Unique</th><th>Missing</th><th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in ds.columns %}
+        <tr class="hover:bg-slate-50/50 border-b border-slate-50">
+          <td class="text-slate-400">{{ loop.index }}</td>
+          <td class="font-medium text-slate-700">{{ c.name }}</td>
+          <td><span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md text-xs">{{ c.dtype }}</span></td>
+          <td>{{ c.unique }}</td>
+          <td class="{% if c.missing > 0 %}text-red-500 font-semibold{% endif %}">{{ c.missing }}</td>
+          <td class="text-slate-500 text-xs">{{ c.description }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Sample Data -->
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+  <div class="px-6 py-5 border-b border-slate-100">
+    <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+      <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+      </svg>
+      Sample Data (First 10 Rows)
+    </h2>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="table table-xs">
+      <thead>
+        <tr class="bg-slate-50 text-slate-500 text-xs uppercase">
+          {% for key in ds.sample_rows[0].keys() %}
+          <th class="text-center">{{ key }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in ds.sample_rows %}
+        <tr class="hover:bg-slate-50/50 border-b border-slate-50">
+          {% for val in row.values() %}
+          <td class="text-center text-slate-600">{{ val }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

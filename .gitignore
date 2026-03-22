@@ -1,0 +1,23 @@
+# Essential Python Ignore
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv
+venv/
+env/
+.env
+
+# Project specific
+models/
+outputs/
+plots/*.png
+plots/*.jpg
+plots/*.jpeg
+*.csv
+*.docx
+*.zip
+
+# OS Files
+.DS_Store
+Thumbs.db

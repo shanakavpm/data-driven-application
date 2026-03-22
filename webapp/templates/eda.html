@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Exploratory Data Analysis - FraudGuard{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<div class="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl px-8 py-10 mb-8 text-center shadow-sm">
+  <h1 class="text-3xl font-bold text-white tracking-tight">Exploratory Data Analysis</h1>
+  <p class="text-emerald-100 mt-2 text-sm">Visual insights from univariate, bivariate, and multivariate analysis</p>
+</div>
+
+<!-- Tabs + Content -->
+<div x-data="{ tab: 'univariate' }">
+
+  <!-- Tab bar -->
+  <div class="flex bg-white rounded-xl border border-slate-200 p-1 mb-6 shadow-sm">
+    <button @click="tab = 'univariate'"
+      :class="tab === 'univariate' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+      class="flex-1 py-2.5 text-sm font-medium rounded-lg transition-all">Univariate</button>
+    <button @click="tab = 'bivariate'"
+      :class="tab === 'bivariate' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+      class="flex-1 py-2.5 text-sm font-medium rounded-lg transition-all">Bivariate</button>
+    <button @click="tab = 'multivariate'"
+      :class="tab === 'multivariate' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+      class="flex-1 py-2.5 text-sm font-medium rounded-lg transition-all">Multivariate</button>
+    <button @click="tab = 'model'"
+      :class="tab === 'model' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+      class="flex-1 py-2.5 text-sm font-medium rounded-lg transition-all">Model Evaluation</button>
+  </div>
+
+  <!-- Univariate -->
+  <div x-show="tab === 'univariate'" x-transition.opacity>
+    <div class="bg-sky-50 border border-sky-200 rounded-xl p-4 mb-5 flex gap-3 items-start">
+      <div class="w-7 h-7 rounded-md bg-sky-100 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <p class="text-sm text-sky-800 leading-relaxed">
+        <strong>Univariate Insights:</strong> Target is heavily imbalanced (~98% non-fraud).
+        Females outnumber males. Income is right-skewed (100K-250K centre).
+        Most cardholders are <em>Working</em> class and <em>Married</em>.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {% for img in plots.univariate %}
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden cursor-zoom-in hover:shadow-md transition-shadow group"
+        @click="$dispatch('open-lightbox', { src: '/plots/{{ img }}', alt: '{{ img }}' })">
+        <div class="p-3">
+          <img src="/plots/{{ img }}" alt="{{ img }}" class="rounded-xl w-full group-hover:scale-[1.02] transition-transform duration-300" loading="lazy">
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Bivariate -->
+  <div x-show="tab === 'bivariate'" x-transition.opacity>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5 flex gap-3 items-start">
+      <div class="w-7 h-7 rounded-md bg-amber-100 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <p class="text-sm text-amber-800 leading-relaxed">
+        <strong>Bivariate Insights:</strong> Income and age distributions overlap between
+        fraud / non-fraud groups. Males show a slightly higher fraud rate.
+        No single feature separates the classes well &ndash; multivariate models are necessary.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {% for img in plots.bivariate %}
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden cursor-zoom-in hover:shadow-md transition-shadow group"
+        @click="$dispatch('open-lightbox', { src: '/plots/{{ img }}', alt: '{{ img }}' })">
+        <div class="p-3">
+          <img src="/plots/{{ img }}" alt="{{ img }}" class="rounded-xl w-full group-hover:scale-[1.02] transition-transform duration-300" loading="lazy">
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Multivariate -->
+  <div x-show="tab === 'multivariate'" x-transition.opacity>
+    <div class="bg-violet-50 border border-violet-200 rounded-xl p-4 mb-5 flex gap-3 items-start">
+      <div class="w-7 h-7 rounded-md bg-violet-100 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+      </div>
+      <p class="text-sm text-violet-800 leading-relaxed">
+        <strong>Multivariate Insights:</strong> NO_OF_CHILD &amp; FAMILY SIZE are strongly
+        correlated (0.89). FLAG_MOBIL has zero variance. TARGET correlates weakly with all
+        features &ndash; fraud detection relies on complex, non-linear interactions.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {% for img in plots.multivariate %}
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden cursor-zoom-in hover:shadow-md transition-shadow group"
+        @click="$dispatch('open-lightbox', { src: '/plots/{{ img }}', alt: '{{ img }}' })">
+        <div class="p-3">
+          <img src="/plots/{{ img }}" alt="{{ img }}" class="rounded-xl w-full group-hover:scale-[1.02] transition-transform duration-300" loading="lazy">
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Model Evaluation -->
+  <div x-show="tab === 'model'" x-transition.opacity>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-5 flex gap-3 items-start">
+      <div class="w-7 h-7 rounded-md bg-emerald-100 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <p class="text-sm text-emerald-800 leading-relaxed">
+        <strong>Model Plots:</strong> ROC curves, confusion matrices, feature importance,
+        and performance comparisons. See the <a href="/prediction" class="underline font-medium">Prediction</a> page for metrics.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {% for img in model_plots %}
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden cursor-zoom-in hover:shadow-md transition-shadow group"
+        @click="$dispatch('open-lightbox', { src: '/plots/{{ img }}', alt: '{{ img }}' })">
+        <div class="p-3">
+          <img src="/plots/{{ img }}" alt="{{ img }}" class="rounded-xl w-full group-hover:scale-[1.02] transition-transform duration-300" loading="lazy">
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}
