@@ -269,56 +269,89 @@
   </form>
 </div>
 
-<!-- Result -->
-<div x-data x-show="$store.result.show" x-transition x-cloak class="mb-8">
-  <div class="rounded-2xl overflow-hidden shadow-sm border"
-    :class="$store.result.prediction === 1 ? 'border-red-200' : 'border-emerald-200'">
+<!-- Result Modal -->
+<dialog id="prediction_modal" class="modal modal-bottom sm:modal-middle" x-data x-cloak>
+  <div class="modal-box p-0 overflow-hidden border-2" 
+    :class="$store.result.prediction == 1 ? 'border-red-200' : 'border-emerald-200'">
+    
+    <!-- Modal Header -->
+    <div class="px-6 py-6 text-center relative"
+      :class="$store.result.prediction == 1 ? 'bg-red-50' : 'bg-emerald-50'">
+      
+      <!-- Close button (top right) -->
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
 
-    <div class="p-8 text-center"
-      :class="$store.result.prediction === 1 ? 'bg-red-50' : 'bg-emerald-50'">
-      <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4"
-        :class="$store.result.prediction === 1 ? 'bg-red-100' : 'bg-emerald-100'">
-        <template x-if="$store.result.prediction === 1">
-          <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-          </svg>
+      <!-- Icon -->
+      <div class="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-sm"
+        :class="$store.result.prediction == 1 ? 'bg-red-200 text-red-700' : 'bg-emerald-200 text-emerald-700'">
+        <template x-if="$store.result.prediction == 1">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg>
         </template>
-        <template x-if="$store.result.prediction !== 1">
-          <svg class="w-7 h-7 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
+        <template x-if="$store.result.prediction != 1">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
         </template>
       </div>
 
-      <h3 class="text-2xl font-bold"
-        :class="$store.result.prediction === 1 ? 'text-red-700' : 'text-emerald-700'"
-        x-text="$store.result.prediction === 1 ? 'FRAUD DETECTED' : 'LEGITIMATE TRANSACTION'"></h3>
-      <p class="text-sm mt-1"
-        :class="$store.result.prediction === 1 ? 'text-red-500' : 'text-emerald-500'"
-        x-text="'Probability: ' + $store.result.probability + '% (threshold: ' + $store.result.threshold + ')'"></p>
+      <h3 class="text-2xl font-black uppercase tracking-tight"
+        :class="$store.result.prediction == 1 ? 'text-red-900' : 'text-emerald-900'"
+        x-text="$store.result.label"></h3>
+      <p class="text-xs uppercase font-bold tracking-widest mt-1 opacity-60"
+        :class="$store.result.prediction == 1 ? 'text-red-600' : 'text-emerald-600'">
+        Security Analysis Report
+      </p>
+    </div>
 
-      <div class="mt-5 max-w-sm mx-auto">
-        <div class="flex items-center justify-between text-xs font-medium mb-1.5"
-          :class="$store.result.prediction === 1 ? 'text-red-400' : 'text-emerald-400'">
-          <span>Fraud Probability</span>
-          <span x-text="$store.result.probability + '%'"></span>
+    <!-- Modal Body -->
+    <div class="px-8 py-8 bg-white">
+      <div class="grid grid-cols-2 gap-6 mb-8 text-center" x-show="$store.result.show">
+        <div>
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Confidence</span>
+          <span class="text-2xl font-black text-slate-800" x-text="$store.result.probability + '%'"></span>
         </div>
-        <div class="w-full bg-white rounded-full h-3 overflow-hidden shadow-inner">
-          <div class="h-full rounded-full transition-all duration-700 ease-out"
-            :class="$store.result.prediction === 1 ? 'bg-red-400' : 'bg-emerald-400'"
+        <div>
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Model Cut-off</span>
+          <span class="text-2xl font-black text-slate-800" x-text="$store.result.threshold"></span>
+        </div>
+      </div>
+
+      <!-- Probability Bar -->
+      <div class="space-y-2">
+        <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+          <span>Legitimate</span>
+          <span>Fraud Risk</span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner border border-slate-50">
+          <div class="h-full rounded-full transition-all duration-1000 ease-out shadow-sm"
+            :class="$store.result.prediction == 1 ? 'bg-red-500' : 'bg-emerald-500'"
             :style="'width: ' + $store.result.probability + '%'"></div>
         </div>
       </div>
+
+      <!-- Action Button -->
+      <div class="mt-8 text-center">
+        <form method="dialog">
+          <button class="btn btn-block"
+            :class="$store.result.prediction == 1 ? 'btn-error' : 'btn-success'">
+            Done
+          </button>
+        </form>
+      </div>
     </div>
   </div>
-</div>
+  <!-- Backdrop click to close -->
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
 document.addEventListener('alpine:init', function() {
-  Alpine.store('result', { show: false, prediction: 0, probability: 0, threshold: 0.5 });
+  Alpine.store('result', { show: false, prediction: 0, probability: 0, threshold: 0.5, label: '' });
 });
 
 function predictionForm() {
@@ -350,8 +383,12 @@ function predictionForm() {
         Alpine.store('result').prediction = data.prediction;
         Alpine.store('result').probability = data.probability;
         Alpine.store('result').threshold = data.threshold;
+        Alpine.store('result').label = data.label;
         Alpine.store('result').show = true;
         self.loading = false;
+        
+        // Open the modal automatically
+        document.getElementById('prediction_modal').showModal();
       })
       .catch(function(err) { alert('Prediction failed: ' + err); self.loading = false; });
     }
