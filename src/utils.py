@@ -32,13 +32,6 @@ def load_json(path):
         return json.load(f)
 
 
-def encode_binary(df, columns, mapping):
-    df = df.copy()
-    for col in columns:
-        df[col] = df[col].map(mapping)
-    return df
-
-
 def _json_default(obj):
     """Handle numpy types when writing JSON."""
     if isinstance(obj, (np.integer,)):

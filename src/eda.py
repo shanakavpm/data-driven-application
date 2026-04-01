@@ -119,54 +119,6 @@ def _plot_target(df):
     return _save(fig, "target_distribution.png")
 
 
-def _plot_bar(df, col, title, colors=None):
-    fig, ax = plt.subplots(figsize=(7, 4))
-    vc = df[col].value_counts()
-    c = colors or sns.color_palette("Set2", len(vc))
-    ax.bar(vc.index, vc.values, color=c, edgecolor="white")
-    for i, (_, v) in enumerate(vc.items()):
-        ax.text(i, v + (vc.max() * 0.01), f"{v:,}", ha="center", fontweight="bold")
-    
-    ax.set_ylim(0, vc.max() * 1.2)
-    ax.set_title(title, fontweight="bold", pad=15)
-    ax.set_ylabel("Count")
-    return _save(fig, f"{col.lower()}_distribution.png")
-
-
-def _plot_hist(df, col, color, title):
-    fig, ax = plt.subplots(figsize=(9, 4))
-    ax.hist(df[col], bins=40, color=color, edgecolor="white", alpha=0.85)
-    ax.axvline(df[col].mean(), color="red", ls="--",
-               label=f"Mean: {df[col].mean():,.1f}")
-    ax.set_title(title, fontweight="bold")
-    ax.set_xlabel(col)
-    ax.set_ylabel("Frequency")
-    ax.legend()
-    return _save(fig, f"{col.lower()}_distribution.png")
-
-
-def _plot_hbar(df, col, title):
-    fig, ax = plt.subplots(figsize=(9, 4))
-    vc = df[col].value_counts()
-    colors = sns.color_palette("Set2", len(vc))
-    ax.barh(vc.index, vc.values, color=colors, edgecolor="white")
-    for bar, v in zip(ax.patches, vc.values):
-        ax.text(v + 30, bar.get_y() + bar.get_height()/2,
-                f"{v:,}", va="center", fontweight="bold")
-    ax.set_title(title, fontweight="bold")
-    ax.set_xlabel("Count")
-    return _save(fig, f"{col.lower()}_distribution.png")
-
-
-def _plot_pie(df, col, title):
-    fig, ax = plt.subplots(figsize=(8, 5))
-    vc = df[col].value_counts()
-    ax.pie(vc.values, labels=vc.index, autopct="%1.1f%%",
-           colors=sns.color_palette("pastel"), startangle=140)
-    ax.set_title(title, fontweight="bold")
-    return _save(fig, f"{col.lower()}_distribution.png")
-
-
 def _plot_box_by_target(df, col, title):
     fig, ax = plt.subplots(figsize=(7, 4))
     df.boxplot(column=col, by=cfg.TARGET_COL, ax=ax,
@@ -190,21 +142,6 @@ def _plot_fraud_rate(df, col, title):
     ax.legend(["Non-Fraud", "Fraud"])
     ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
     return _save(fig, f"fraud_rate_{col.lower()}.png")
-
-
-def _plot_scatter_target(df, x, y, title):
-    fig, ax = plt.subplots(figsize=(9, 5))
-    sample = df.sample(min(5000, len(df)), random_state=cfg.RANDOM_STATE)
-    for label, c, m, a, s in [(0, COLORS["safe"], "o", 0.3, 10),
-                               (1, COLORS["fraud"], "x", 0.9, 30)]:
-        sub_df = sample[sample[cfg.TARGET_COL] == label]
-        ax.scatter(sub_df[x], sub_df[y], c=c, marker=m, alpha=a, s=s,
-                   label="Fraud" if label else "Non-Fraud")
-    ax.set_title(title, fontweight="bold")
-    ax.set_xlabel(x)
-    ax.set_ylabel(y)
-    ax.legend()
-    return _save(fig, f"{x.lower()}_vs_{y.lower()}_scatter.png")
 
 
 def _plot_corr_heatmap(df):

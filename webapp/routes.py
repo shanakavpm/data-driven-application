@@ -8,8 +8,8 @@ from src.utils import load_json, load_pkl
 
 main_bp = Blueprint("main", __name__)
 
-# cache loaded models and data so we only read from disk once
-_cache = {}
+# Cache loaded model files so we only read from disk once
+_model_cache = {}
 
 
 def _summary():
@@ -18,9 +18,9 @@ def _summary():
 
 
 def _model(name):
-    if name not in _cache:
-        _cache[name] = load_pkl(os.path.join(cfg.MODEL_DIR, name))
-    return _cache[name]
+    if name not in _model_cache:
+        _model_cache[name] = load_pkl(os.path.join(cfg.MODEL_DIR, name))
+    return _model_cache[name]
 
 
 @main_bp.route("/plots/<path:filename>")
