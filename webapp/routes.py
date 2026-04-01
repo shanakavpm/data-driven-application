@@ -13,9 +13,8 @@ _cache = {}
 
 
 def _summary():
-    if "summary" not in _cache:
-        _cache["summary"] = load_json(cfg.SUMMARY_PATH)
-    return _cache["summary"]
+    # Remove the caching check to ensure fresh data on every refresh
+    return load_json(cfg.SUMMARY_PATH)
 
 
 def _model(name):
