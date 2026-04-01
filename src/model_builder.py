@@ -271,7 +271,7 @@ def _save_model_plots(results, y_test, feature_names, rf_model):
             ax.plot(fpr, tpr, lw=2,
                     label=f"{name} (AUC={r['roc_auc']:.3f})")
     ax.plot([0, 1], [0, 1], "k--", alpha=0.4)
-    ax.set_title("ROC Curves", fontweight="bold")
+    ax.set_title("ROC Curves", fontweight="bold", pad=20)
     ax.set_xlabel("False Positive Rate")
     ax.set_ylabel("True Positive Rate")
     ax.legend(loc="lower right", fontsize=8)
@@ -294,7 +294,7 @@ def _save_model_plots(results, y_test, feature_names, rf_model):
                     xticklabels=["Legit", "Fraud"],
                     yticklabels=["Legit", "Fraud"])
         short = name[:22] + "..." if len(name) > 24 else name
-        ax.set_title(short, fontsize=9, fontweight="bold")
+        ax.set_title(short, fontsize=9, fontweight="bold", pad=12)
         ax.set_ylabel("Actual")
         ax.set_xlabel("Predicted")
     fig.suptitle("Confusion Matrices", fontweight="bold", y=1.02)
@@ -311,7 +311,7 @@ def _save_model_plots(results, y_test, feature_names, rf_model):
     idx = np.argsort(imp)
     ax.barh(np.array(feature_names)[idx], imp[idx],
             color="#3498db", edgecolor="white")
-    ax.set_title("Feature Importance (RF Improved)", fontweight="bold")
+    ax.set_title("Feature Importance (RF Improved)", fontweight="bold", pad=20)
     ax.set_xlabel("Importance")
     fig.tight_layout()
     fname = "feature_importance.png"
@@ -331,8 +331,8 @@ def _save_model_plots(results, y_test, feature_names, rf_model):
         ax.bar(x + i * w, vals, w, label=name, color=palette[i], edgecolor="white")
     ax.set_xticks(x + w * (len(results) - 1) / 2)
     ax.set_xticklabels(["Accuracy", "Precision", "Recall", "F1", "ROC-AUC"])
-    ax.set_ylim(0, 1.15)
-    ax.set_title("Model Performance Comparison", fontweight="bold")
+    ax.set_ylim(0, 1.2)  # Extra headroom for legend
+    ax.set_title("Model Performance Comparison", fontweight="bold", pad=20)
     ax.set_ylabel("Score")
     ax.legend(fontsize=7)
     ax.grid(axis="y", alpha=0.3)

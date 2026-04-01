@@ -109,12 +109,14 @@ def _plot_target(df):
     bars = ax.bar(["Non-Fraud (0)", "Fraud (1)"], vc.values,
                   color=[COLORS["safe"], COLORS["fraud"]], edgecolor="white")
     for b, v in zip(bars, vc.values):
-        ax.text(b.get_x() + b.get_width()/2, v + 80,
+        ax.text(b.get_x() + b.get_width()/2, v + (vc.max() * 0.01),
                 f"{v:,}\n({v/len(df)*100:.1f}%)",
-                ha="center", fontweight="bold", fontsize=11)
-    ax.set_title("Target Variable Distribution", fontweight="bold")
+                ha="center", fontweight="bold", fontsize=10)
+    
+    ax.set_ylim(0, vc.max() * 1.25)  # Add 25% space at the top
+    ax.set_title("Target Variable Distribution", fontweight="bold", pad=20)
     ax.set_ylabel("Count")
-    return _save(fig, "01_target_distribution.png")
+    return _save(fig, "target_distribution.png")
 
 
 def _plot_bar(df, col, title, colors=None):
@@ -123,8 +125,10 @@ def _plot_bar(df, col, title, colors=None):
     c = colors or sns.color_palette("Set2", len(vc))
     ax.bar(vc.index, vc.values, color=c, edgecolor="white")
     for i, (_, v) in enumerate(vc.items()):
-        ax.text(i, v + 80, f"{v:,}", ha="center", fontweight="bold")
-    ax.set_title(title, fontweight="bold")
+        ax.text(i, v + (vc.max() * 0.01), f"{v:,}", ha="center", fontweight="bold")
+    
+    ax.set_ylim(0, vc.max() * 1.2)
+    ax.set_title(title, fontweight="bold", pad=15)
     ax.set_ylabel("Count")
     return _save(fig, f"{col.lower()}_distribution.png")
 
@@ -168,7 +172,7 @@ def _plot_box_by_target(df, col, title):
     df.boxplot(column=col, by=cfg.TARGET_COL, ax=ax,
                boxprops=dict(color="#2c3e50"),
                medianprops=dict(color="red"))
-    ax.set_title(title, fontweight="bold")
+    ax.set_title(title, fontweight="bold", pad=20)
     ax.set_xlabel("Target (0 = Legitimate, 1 = Fraud)")
     ax.set_ylabel(col)
     plt.suptitle("")
@@ -180,8 +184,9 @@ def _plot_fraud_rate(df, col, title):
     ct = pd.crosstab(df[col], df[cfg.TARGET_COL], normalize="index") * 100
     ct.plot(kind="bar", ax=ax,
             color=[COLORS["safe"], COLORS["fraud"]], edgecolor="white")
-    ax.set_title(title, fontweight="bold")
+    ax.set_title(title, fontweight="bold", pad=20)
     ax.set_ylabel("Percentage (%)")
+    ax.set_ylim(0, 115)  # Give room above 100% bars if they exist
     ax.legend(["Non-Fraud", "Fraud"])
     ax.set_xticklabels(ax.get_xticklabels(), rotation=25, ha="right")
     return _save(fig, f"fraud_rate_{col.lower()}.png")
@@ -203,13 +208,17 @@ def _plot_scatter_target(df, x, y, title):
 
 
 def _plot_corr_heatmap(df):
-    fig, ax = plt.subplots(figsize=(13, 9))
+    fig, ax = plt.subplots(figsize=(12, 10))
     num = df.select_dtypes(include=[np.number])
+    # Drop irrelevant or zero-variance columns for a cleaner heatmap
+    to_drop = ["ID", "FLAG_MOBIL", "WORK_PHONE", "PHONE"]
+    num = num.drop(columns=[c for c in to_drop if c in num.columns])
+    
     corr = num.corr()
     mask = np.triu(np.ones_like(corr, dtype=bool))
     sns.heatmap(corr, mask=mask, annot=True, fmt=".2f",
                 cmap="RdYlBu_r", center=0, ax=ax, square=True,
-                linewidths=0.5, cbar_kws={"shrink": 0.7})
+                linewidths=0.5, cbar_kws={"shrink": 0.6})
     ax.set_title("Correlation Heatmap", fontweight="bold")
     return _save(fig, "correlation_heatmap.png")
 
