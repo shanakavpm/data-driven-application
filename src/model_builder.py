@@ -285,20 +285,28 @@ def _save_model_plots(results, y_test, feature_names, rf_model):
 
     # confusion matrices
     n_models = len(results)
-    fig, axes = plt.subplots(1, n_models, figsize=(5 * n_models, 4))
-    if n_models == 1:
-        axes = [axes]
-    for ax, (name, r) in zip(axes, results.items()):
+    fig, axes = plt.subplots(2, 2, figsize=(14, 12))
+    axes_flat = axes.flatten()
+
+    for i, (name, r) in enumerate(results.items()):
+        ax = axes_flat[i]
         cm = confusion_matrix(y_test, r["y_pred"])
         sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax,
+                    annot_kws={"size": 16, "weight": "bold"}, 
                     xticklabels=["Legit", "Fraud"],
-                    yticklabels=["Legit", "Fraud"])
-        short = name[:22] + "..." if len(name) > 24 else name
-        ax.set_title(short, fontsize=9, fontweight="bold", pad=12)
-        ax.set_ylabel("Actual")
-        ax.set_xlabel("Predicted")
-    fig.suptitle("Confusion Matrices", fontweight="bold", y=1.02)
-    fig.tight_layout()
+                    yticklabels=["Legit", "Fraud"],
+                    cbar_kws={"shrink": 0.8})
+        short = name[:28] + "..." if len(name) > 30 else name
+        ax.set_title(short, fontsize=12, fontweight="bold", pad=15)
+        ax.set_ylabel("Actual", fontsize=11)
+        ax.set_xlabel("Predicted", fontsize=11)
+    
+    # Remove any extra empty subplots if n_models < 4
+    for j in range(i + 1, 4):
+        fig.delaxes(axes_flat[j])
+
+    fig.suptitle("Model Evaluation: Confusion Matrices", fontweight="bold", fontsize=16, y=1.02)
+    fig.tight_layout(pad=4.0)
     fname = "confusion_matrices.png"
     fig.savefig(os.path.join(cfg.PLOT_DIR, fname), dpi=150, bbox_inches="tight")
     plt.close(fig)
