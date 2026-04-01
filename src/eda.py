@@ -71,13 +71,6 @@ def generate_visualisations(df):
     sub("Univariate Analysis")
     filenames["univariate"] += [
         _plot_target(df),
-        _plot_bar(df, "GENDER", "Gender Distribution",
-                  [COLORS["female"], COLORS["male"]]),
-        _plot_hist(df, "INCOME", "#9b59b6", "Income Distribution"),
-        _plot_hist(df, "AGE", "#1abc9c", "Age Distribution"),
-        _plot_hbar(df, "INCOME_TYPE", "Income Type Distribution"),
-        _plot_hbar(df, "EDUCATION_TYPE", "Education Type Distribution"),
-        _plot_pie(df, "FAMILY_TYPE", "Family Type Distribution"),
     ]
 
     # bivariate
@@ -87,7 +80,6 @@ def generate_visualisations(df):
         _plot_box_by_target(df, "AGE", "Age by Fraud Status"),
         _plot_fraud_rate(df, "GENDER", "Fraud Rate by Gender"),
         _plot_fraud_rate(df, "FAMILY_TYPE", "Fraud Rate by Family Type"),
-        _plot_scatter_target(df, "AGE", "INCOME", "Age vs Income"),
     ]
 
     # multivariate
