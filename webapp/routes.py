@@ -4,7 +4,7 @@ import os
 import numpy as np
 from flask import Blueprint, render_template, request, jsonify, send_from_directory
 import config as cfg
-from src.utils import load_json, load_pkl
+from src.utils import load_json, load_pkl, map_age_group
 
 main_bp = Blueprint("main", __name__)
 
@@ -66,31 +66,67 @@ def predict():
         "logistic":    "logistic_regression.pkl",
         "rf_improved": "rf_improved.pkl",
     }
-    model_file = model_files.get(data.get("model_choice"), "rf_improved.pkl")
-    model = _model(model_file)
+    model_choice = data.get("model_choice", "rf_improved")
+    model = _model(model_files.get(model_choice, "rf_improved.pkl"))
     scaler = _model("scaler.pkl")
     encoders = _model("label_encoders.pkl")
     feature_names = _model("feature_names.pkl")
 
-    # threshold only applies to the improved model
+    # Determine thresholds
     threshold = 0.5
-    if data.get("model_choice") == "rf_improved":
+    if model_choice == "rf_improved":
         try:
             threshold = _model("optimal_threshold.pkl")
-        except Exception:
+        except:
             threshold = 0.5
 
-    # build feature vector
-    binary = {"M": 1, "F": 0, "Y": 1, "N": 0}
+    # Process input data
+    row, age = _extract_row(data)
+
+    # Encode categorical fields
+    cat_cols = ["FAMILY_TYPE", "HOUSE_TYPE", "INCOME_TYPE", "EDUCATION_TYPE"]
+    for col in cat_cols:
+        le = encoders.get(col)
+        val = data.get(col.lower(), "Other")
+        if le and val in le.classes_:
+            row[col] = int(le.transform([val])[0])
+
+    # Map shared age group logic
+    ag_label = map_age_group(age)
+    le_ag = encoders.get("AGE_GROUP")
+    if le_ag and ag_label in le_ag.classes_:
+        row["AGE_GROUP"] = int(le_ag.transform([ag_label])[0])
+
+    # Prediction sequence
+    vec = np.array([row.get(f, 0) for f in feature_names]).reshape(1, -1)
+    vec_scaled = scaler.transform(vec)
+    prob = model.predict_proba(vec_scaled)[0]
+    pred = int(prob[1] >= threshold)
+
+    return jsonify({
+        "prediction":  pred,
+        "probability": round(float(prob[1]) * 100, 1),
+        "threshold":   round(threshold, 2),
+        "label":       "Fraud" if pred else "Legitimate",
+    })
+
+
+def _extract_row(data):
+    """Internal helper to convert JSON data into a feature-ready dictionary."""
     age = int(data.get("age", 35))
-    family_size = int(data.get("family_size", 2))
     income = float(data.get("income", 150000))
+    family_size = int(data.get("family_size", 2))
     years_emp = int(data.get("years_employed", 5))
 
-    row = {
-        "GENDER":           binary[data.get("gender", "M")],
-        "CAR":              binary[data.get("car", "N")],
-        "REALITY":          binary[data.get("reality", "Y")],
+    # Communication channels count
+    comm_score = (int(data.get("work_phone", 0)) +
+                  int(data.get("phone", 0)) +
+                  int(data.get("email", 0)))
+
+    return {
+        "GENDER":           cfg.BINARY_MAP.get(data.get("gender", "F")),
+        "CAR":              cfg.BINARY_MAP.get(data.get("car", "N")),
+        "REALITY":          cfg.BINARY_MAP.get(data.get("reality", "Y")),
         "NO_OF_CHILD":      int(data.get("no_children", 0)),
         "FAMILY_TYPE":      0,
         "HOUSE_TYPE":       0,
@@ -107,41 +143,5 @@ def predict():
         "INCOME_PER_MEMBER": income / max(family_size, 1),
         "AGE_GROUP":        0,
         "EMPLOYMENT_RATIO": years_emp / max(age, 1),
-        "COMM_SCORE":       (int(data.get("work_phone", 0))
-                             + int(data.get("phone", 0))
-                             + int(data.get("email", 0))),
-    }
-
-    # encode categorical fields
-    cat_vals = {
-        "FAMILY_TYPE":    data.get("family_type", "Married"),
-        "HOUSE_TYPE":     data.get("house_type", "House / apartment"),
-        "INCOME_TYPE":    data.get("income_type", "Working"),
-        "EDUCATION_TYPE": data.get("education_type", "Secondary / secondary special"),
-    }
-    for col, val in cat_vals.items():
-        le = encoders.get(col)
-        if le and val in le.classes_:
-            row[col] = int(le.transform([val])[0])
-
-    # encode age group
-    age_bins = [(25, "Young"), (35, "Adult"), (45, "Middle"),
-                (55, "Senior"), (999, "Elderly")]
-    ag = next(lbl for cut, lbl in age_bins if age <= cut)
-    le_ag = encoders.get("AGE_GROUP")
-    if le_ag and ag in le_ag.classes_:
-        row["AGE_GROUP"] = int(le_ag.transform([ag])[0])
-
-    # align to model's expected feature order and scale
-    vec = np.array([row.get(f, 0) for f in feature_names]).reshape(1, -1)
-    vec_scaled = scaler.transform(vec)
-
-    prob = model.predict_proba(vec_scaled)[0]
-    pred = int(prob[1] >= threshold)
-
-    return jsonify({
-        "prediction":  pred,
-        "probability": round(float(prob[1]) * 100, 1),
-        "threshold":   round(threshold, 2),
-        "label":       "Fraud" if pred else "Legitimate",
-    })
+        "COMM_SCORE":       comm_score,
+    }, age

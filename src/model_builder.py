@@ -1,8 +1,7 @@
 """
-Task 3 - Model building, evaluation, and improvements.
-  Model 1: Random Forest (baseline)
-  Model 2: Logistic Regression
-  Improvements: GridSearchCV + threshold optimisation
+  Model 1: Random Forest (Baseline)
+  Model 2: Logistic Regression (Recall Focus)
+  Improvements: GridSearchCV + Threshold Tuning
 """
 
 import os

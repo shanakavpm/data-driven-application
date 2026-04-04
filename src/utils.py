@@ -41,3 +41,15 @@ def _json_default(obj):
     if isinstance(obj, np.ndarray):
         return obj.tolist()
     return str(obj)
+
+
+def map_age_group(age):
+    """
+    Standardize age into categories used by the model.
+    Matches the bins in preprocessor.py.
+    """
+    if age <= 25: return "Young"
+    if age <= 35: return "Adult"
+    if age <= 45: return "Middle"
+    if age <= 55: return "Senior"
+    return "Elderly"
