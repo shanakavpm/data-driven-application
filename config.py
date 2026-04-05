@@ -4,9 +4,10 @@ import os
 
 # paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
 
-DATA1_PATH = os.path.join(BASE_DIR, "Credit_Card_Dataset_2025_Sept_1.csv")
-DATA2_PATH = os.path.join(BASE_DIR, "Credit_Card_Dataset_2025_Sept_2.csv")
+DATA1_PATH = os.path.join(DATA_DIR, "Credit_Card_Dataset_2025_Sept_1.csv")
+DATA2_PATH = os.path.join(DATA_DIR, "Credit_Card_Dataset_2025_Sept_2.csv")
 
 PLOT_DIR   = os.path.join(BASE_DIR, "plots")
 MODEL_DIR  = os.path.join(BASE_DIR, "models")
