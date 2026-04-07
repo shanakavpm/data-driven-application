@@ -3,24 +3,24 @@
 
 {% block content %}
 <!-- Hero -->
-<div class="relative overflow-hidden bg-slate-900 rounded-[2.5rem] p-10 mb-12 shadow-2xl shadow-indigo-200/50">
-  <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-[80px]"></div>
-  <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-80 h-80 bg-violet-600/20 rounded-full blur-[80px]"></div>
+<div class="relative overflow-hidden bg-indigo-50 rounded-[2.5rem] p-10 mb-12 border border-indigo-100 shadow-xl shadow-indigo-100/20">
+  <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-white rounded-full blur-[80px]"></div>
+  <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-80 h-80 bg-indigo-200/30 rounded-full blur-[80px]"></div>
   
   <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
     <div class="text-center md:text-left">
-      <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight leading-none mb-3">Fraud Prediction</h1>
-      <p class="text-slate-400 text-sm max-w-md font-medium leading-relaxed">Enter applicant details below to evaluate the likelihood of credit card fraud using our trained models.</p>
+      <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-none mb-3">Fraud Prediction</h1>
+      <p class="text-slate-500 text-sm max-w-md font-medium leading-relaxed">Enter applicant details below to evaluate the likelihood of credit card fraud using our trained models.</p>
     </div>
     
     <div class="flex gap-4">
-      <div class="bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 text-center w-32">
-        <p class="text-2xl font-black text-white">98.1%</p>
-        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Accuracy</p>
+      <div class="bg-white rounded-3xl p-5 border border-indigo-100 text-center w-32 shadow-sm">
+        <p class="text-2xl font-black text-slate-800">98.1%</p>
+        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Accuracy</p>
       </div>
-      <div class="bg-white/5 backdrop-blur-md rounded-3xl p-5 border border-white/10 text-center w-32">
-        <p class="text-2xl font-black text-indigo-400">0.80</p>
-        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">ROC-AUC</p>
+      <div class="bg-white rounded-3xl p-5 border border-indigo-100 text-center w-32 shadow-sm">
+        <p class="text-2xl font-black text-indigo-500">0.80</p>
+        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">ROC-AUC</p>
       </div>
     </div>
   </div>
@@ -130,298 +130,181 @@
 </div>
 
   <!-- Prediction Form Container -->
-  <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-[0_30px_60px_-15px_rgba(30,41,59,0.1)] mb-16 overflow-hidden" x-data="predictionForm()">
+  <div class="bg-white rounded-2xl border border-slate-100 shadow-xl mb-12 overflow-hidden" x-data="predictionForm()">
     
-    <!-- Analysis Engine Header -->
-    <div class="px-10 py-8 border-b border-slate-50 bg-slate-50/40 flex flex-col md:flex-row items-center justify-between gap-6">
-      <div class="flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-indigo-200">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
         </div>
-        <div class="flex flex-col">
-          <h2 class="text-2xl font-black text-slate-800 tracking-tight font-head">Screening Form</h2>
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">Fill all required fields</span>
+        <div>
+          <h2 class="text-lg font-black text-slate-800 tracking-tight">Screening Form</h2>
+          <span class="text-[9px] font-bold text-slate-400 uppercase tracking-[0.25em]">Fill all fields &bull; Select model &bull; Analyse</span>
         </div>
       </div>
-      
-      <div class="flex items-center gap-3 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm">
-         <span class="pl-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Model:</span>
-         <select x-model="form.model_choice" class="select select-sm border-0 bg-indigo-50 rounded-xl text-xs font-black text-indigo-700 focus:ring-2 focus:ring-indigo-100 cursor-pointer h-10 px-4">
-           <option value="rf_improved">Ensemble (Tuned RF)</option>
-           <option value="rf_baseline">Random Forest Base</option>
-           <option value="logistic">Logistic Regression</option>
-         </select>
+      <div class="flex items-center gap-2">
+        <button type="button" @click="loadPreset('high_risk')" class="h-7 px-3 rounded-md bg-red-50 border border-red-200 text-red-600 text-[9px] font-black uppercase hover:bg-red-600 hover:text-white transition-all active:scale-95">High-Risk</button>
+        <button type="button" @click="loadPreset('low_risk')" class="h-7 px-3 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-600 text-[9px] font-black uppercase hover:bg-emerald-600 hover:text-white transition-all active:scale-95">Safe</button>
+        <button type="button" @click="resetForm()" class="h-7 px-2 rounded-md text-[9px] font-bold text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all">Reset</button>
       </div>
     </div>
 
-    <!-- Rapid Blueprint Bar -->
-    <div class="px-10 py-5 bg-slate-50/20 border-b border-slate-50 flex flex-wrap items-center gap-6">
-      <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-        <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        Blueprint Presets:
-      </span>
-      <div class="flex gap-3">
-        <button type="button" @click="loadPreset('high_risk')" class="h-10 px-6 rounded-xl bg-white border border-red-200 text-red-600 text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all flex items-center gap-2 active:scale-95 shadow-sm">
-          <div class="w-2 h-2 rounded-full bg-red-400 group-hover:bg-white animate-pulse"></div> High-Risk Demo
-        </button>
-        <button type="button" @click="loadPreset('low_risk')" class="h-10 px-6 rounded-xl bg-white border border-emerald-200 text-emerald-600 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all flex items-center gap-2 active:scale-95 shadow-sm">
-          <div class="w-2 h-2 rounded-full bg-emerald-400 group-hover:bg-white"></div> Safe Demo
-        </button>
-      </div>
-      <div class="ml-auto">
-        <button type="button" @click="resetForm()" class="h-10 px-4 text-[10px] font-black text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          Purge Inputs
-        </button>
-      </div>
-    </div>
-
-
-    <form @submit.prevent="submit" class="p-10 md:p-14 space-y-20">
+    <form @submit.prevent="submit" class="p-5 md:p-8">
       
-      <!-- Grid Segment 1: Demographic Archetype -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div class="lg:col-span-3 lg:pt-1">
-          <h3 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-4 flex items-center gap-3">
-             <span class="w-2 h-4 bg-indigo-500 rounded-lg"></span> Personal Details
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed font-semibold">Basic demographic information for social profiling.</p>
-        </div>
-        
-        <div class="lg:col-span-9 grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div class="flex flex-col gap-3">
-            <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-              Gender
-            </label>
-            <select x-model="form.gender" class="select select-bordered select-lg w-full bg-slate-50 border-slate-100 rounded-3xl focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-50 transition-all font-bold text-slate-700">
-              <option value="M">Male</option>
-              <option value="F">Female</option>
-            </select>
-          </div>
-          
-          <div class="flex flex-col gap-3">
-            <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              Age
-            </label>
-            <div class="relative">
-              <input type="number" x-model="form.age" min="18" max="80"
-                class="input input-bordered input-lg w-full bg-slate-50 border-slate-100 rounded-3xl pl-16 focus:border-indigo-600 focus:bg-white focus:ring-4 focus:ring-indigo-50 transition-all font-bold text-slate-800">
-              <span class="absolute left-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">YRS</span>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-3">
-            <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-              Family Size
-            </label>
-            <div class="relative">
-              <input type="number" x-model="form.family_size" min="1" max="15"
-                class="input input-bordered input-lg w-full bg-slate-50 border-slate-100 rounded-3xl pl-16 focus:border-indigo-600 focus:bg-white transition-all font-bold text-slate-800">
-              <span class="absolute left-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300">QTY</span>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-3 md:col-span-2">
-            <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
-              Education Type
-            </label>
-            <select x-model="form.education_type" class="select select-bordered select-lg w-full bg-slate-50 border-slate-100 rounded-3xl focus:border-indigo-600 focus:bg-white transition-all font-bold text-slate-700">
-              <option value="Secondary / secondary special">Secondary Special</option>
-              <option value="Higher education">Higher Education</option>
-              <option value="Incomplete higher">Incomplete Higher</option>
-              <option value="Lower secondary">Lower Secondary</option>
-              <option value="Academic degree">Academic Degree</option>
-            </select>
-          </div>
-
-          <div class="flex flex-col gap-3">
-             <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-              Family Status
-            </label>
-            <select x-model="form.family_type" class="select select-bordered select-lg w-full bg-slate-50 border-slate-100 rounded-3xl focus:border-indigo-600 focus:bg-white transition-all font-bold text-slate-700">
-              <option value="Married">Married</option>
-              <option value="Single / not married">Single</option>
-              <option value="Civil marriage">Civil marriage</option>
-              <option value="Separated">Separated</option>
-              <option value="Widow">Widow</option>
-            </select>
-          </div>
+      <!-- Model Selection -->
+      <div class="flex justify-center mb-6">
+        <div class="inline-flex items-center gap-3 bg-indigo-600 py-1.5 px-2 rounded-2xl shadow-lg shadow-indigo-500/25 border border-indigo-400/40">
+           <span class="pl-3 text-[11px] font-black text-indigo-100 uppercase tracking-widest">Active Model:</span>
+           <select x-model="form.model_choice" class="select border-0 bg-white rounded-xl text-sm font-black text-indigo-800 cursor-pointer h-10 px-4 min-w-[220px]">
+             <option value="rf_improved">Ensemble (Tuned RF)</option>
+             <option value="rf_baseline">Random Forest Base</option>
+             <option value="logistic">Logistic Regression</option>
+           </select>
         </div>
       </div>
 
-      <hr class="border-slate-50/50">
+      <!-- 4-Column Form Grid  -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
 
-      <!-- Grid Segment 2: Financial Magnitude -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div class="lg:col-span-3">
-          <h3 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-4 flex items-center gap-3">
-             <span class="w-2 h-4 bg-indigo-500 rounded-lg"></span> Financial Information
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed font-semibold">Details about income, assets, and housing.</p>
+        <!-- Gender -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Gender</label>
+          <select x-model="form.gender" class="select select-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
         </div>
-        
-        <div class="lg:col-span-9 grid grid-cols-1 md:grid-cols-3 gap-12 text-slate-700">
-          <div class="flex flex-col gap-3 md:col-span-2">
-             <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              Total Annual Income
-            </label>
-            <div class="relative group">
-              <span class="absolute left-8 top-1/2 -translate-y-1/2 text-slate-300 font-extrabold text-4xl tracking-tighter group-focus-within:text-indigo-500 transition-colors">$</span>
-              <input type="number" x-model="form.income" min="5000" step="5000"
-                class="input input-bordered w-full h-24 pl-16 pr-28 bg-indigo-50/20 border-indigo-100 rounded-[2rem] focus:border-indigo-600 focus:bg-white focus:ring-8 focus:ring-indigo-50/50 transition-all text-4xl font-black text-slate-900 tracking-tight">
-              <div class="absolute right-8 top-1/2 -translate-y-1/2 py-2 px-3 bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col items-end">
-                <span class="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">Currency</span>
-                <span class="text-[12px] font-extrabold text-indigo-600">USD/YEAR</span>
-              </div>
-            </div>
-          </div>
 
-          <div class="flex flex-col gap-3">
-             <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-              Income Type
-            </label>
-            <select x-model="form.income_type" class="select select-bordered select-lg w-full h-16 bg-slate-50 border-slate-100 rounded-3xl focus:border-indigo-600 transition-all font-bold text-slate-800">
-              <option value="Working">Working</option>
-              <option value="Commercial associate">Commercial Associate</option>
-              <option value="State servant">State Servant</option>
-              <option value="Pensioner">Pensioner</option>
-              <option value="Student">Student</option>
-            </select>
-          </div>
+        <!-- Age -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Age</label>
+          <input type="number" x-model="form.age" min="18" max="80" class="input input-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+        </div>
 
-          <div class="flex flex-col gap-4">
-             <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Own a Car?</label>
-             <div class="flex p-2 bg-slate-100 rounded-[1.5rem] border border-slate-200 shadow-inner">
-              <button type="button" @click="form.car = 'Y'" :class="form.car == 'Y' ? 'bg-white text-indigo-700 shadow-lg ring-1 ring-slate-100' : 'text-slate-400 hover:text-slate-600'" class="flex-1 py-4 rounded-2xl text-[11px] font-black transition-all uppercase tracking-widest">YES</button>
-              <button type="button" @click="form.car = 'N'" :class="form.car == 'N' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-600'" class="flex-1 py-4 rounded-2xl text-[11px] font-black transition-all uppercase tracking-widest">NO</button>
-            </div>
-          </div>
+        <!-- Family Size -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Family Size</label>
+          <input type="number" x-model="form.family_size" min="1" max="15" class="input input-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+        </div>
 
-          <div class="flex flex-col gap-4">
-             <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Own Realty?</label>
-             <div class="flex p-2 bg-slate-100 rounded-[1.5rem] border border-slate-200 shadow-inner">
-              <button type="button" @click="form.reality = 'Y'" :class="form.reality == 'Y' ? 'bg-white text-indigo-700 shadow-lg ring-1 ring-slate-100' : 'text-slate-400 hover:text-slate-600'" class="flex-1 py-4 rounded-2xl text-[11px] font-black transition-all uppercase tracking-widest">YES</button>
-              <button type="button" @click="form.reality = 'N'" :class="form.reality == 'N' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-600'" class="flex-1 py-4 rounded-2xl text-[11px] font-black transition-all uppercase tracking-widest">NO</button>
-            </div>
-          </div>
+        <!-- Education -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Education</label>
+          <select x-model="form.education_type" class="select select-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+            <option value="Secondary / secondary special">Secondary Special</option>
+            <option value="Higher education">Higher Education</option>
+            <option value="Incomplete higher">Incomplete Higher</option>
+            <option value="Lower secondary">Lower Secondary</option>
+            <option value="Academic degree">Academic Degree</option>
+          </select>
+        </div>
 
-          <div class="flex flex-col gap-3">
-             <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-              Housing Type
-            </label>
-            <select x-model="form.house_type" class="select select-bordered select-lg w-full h-16 bg-slate-50 border-slate-100 rounded-3xl focus:border-indigo-600 transition-all font-bold text-slate-800">
-              <option value="House / apartment">House / apartment</option>
-              <option value="Municipal apartment">Municipal apartment</option>
-              <option value="With parents">With parents</option>
-              <option value="Rented apartment">Rented apartment</option>
-              <option value="Co-op apartment">Co-op apartment</option>
-              <option value="Office apartment">Office apartment</option>
-            </select>
+        <!-- Family Status -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Family Status</label>
+          <select x-model="form.family_type" class="select select-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+            <option value="Married">Married</option>
+            <option value="Single / not married">Single</option>
+            <option value="Civil marriage">Civil Marriage</option>
+            <option value="Separated">Separated</option>
+            <option value="Widow">Widow</option>
+          </select>
+        </div>
+
+        <!-- Annual Income -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Annual Income ($)</label>
+          <input type="number" x-model="form.income" min="5000" step="5000" class="input input-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+        </div>
+
+        <!-- Income Type -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Income Type</label>
+          <select x-model="form.income_type" class="select select-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+            <option value="Working">Working</option>
+            <option value="Commercial associate">Commercial Associate</option>
+            <option value="State servant">State Servant</option>
+            <option value="Pensioner">Pensioner</option>
+            <option value="Student">Student</option>
+          </select>
+        </div>
+
+        <!-- Housing Type -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Housing Type</label>
+          <select x-model="form.house_type" class="select select-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+            <option value="House / apartment">House / Apartment</option>
+            <option value="Municipal apartment">Municipal Apartment</option>
+            <option value="With parents">With Parents</option>
+            <option value="Rented apartment">Rented Apartment</option>
+            <option value="Co-op apartment">Co-op Apartment</option>
+            <option value="Office apartment">Office Apartment</option>
+          </select>
+        </div>
+
+        <!-- Own Vehicle -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Own Vehicle?</label>
+          <div class="flex p-0.5 bg-slate-100 rounded-lg border border-slate-200 h-8">
+            <button type="button" @click="form.car = 'Y'" :class="form.car == 'Y' ? 'bg-white text-indigo-700 shadow font-black' : 'text-slate-400 hover:text-slate-600'" class="flex-1 rounded-md text-xs font-bold transition-all">Yes</button>
+            <button type="button" @click="form.car = 'N'" :class="form.car == 'N' ? 'bg-slate-800 text-white shadow font-black' : 'text-slate-400 hover:text-slate-600'" class="flex-1 rounded-md text-xs font-bold transition-all">No</button>
           </div>
         </div>
+
+        <!-- Own Property -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Own Property?</label>
+          <div class="flex p-0.5 bg-slate-100 rounded-lg border border-slate-200 h-8">
+            <button type="button" @click="form.reality = 'Y'" :class="form.reality == 'Y' ? 'bg-white text-indigo-700 shadow font-black' : 'text-slate-400 hover:text-slate-600'" class="flex-1 rounded-md text-xs font-bold transition-all">Yes</button>
+            <button type="button" @click="form.reality = 'N'" :class="form.reality == 'N' ? 'bg-slate-800 text-white shadow font-black' : 'text-slate-400 hover:text-slate-600'" class="flex-1 rounded-md text-xs font-bold transition-all">No</button>
+          </div>
+        </div>
+
+        <!-- Years Employed -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Years Employed</label>
+          <input type="number" x-model="form.years_employed" min="0" max="50" class="input input-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+        </div>
+
+        <!-- Begin Month -->
+        <div>
+          <label class="block mb-1 text-[11px] font-bold text-slate-600 uppercase tracking-wider">Begin Month</label>
+          <input type="number" x-model="form.begin_month" min="0" max="120" class="input input-sm w-full bg-slate-50 border-slate-200 rounded-lg text-sm font-semibold focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition">
+        </div>
+
+      </div><!-- /grid -->
+
+      <!-- Contact row -->
+      <div class="mt-4 bg-slate-50/80 rounded-xl py-3 px-5 flex flex-wrap items-center gap-6 shadow-sm border border-slate-200">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-2">Contact Preferences:</span>
+        <label class="flex items-center gap-2 cursor-pointer group">
+          <input type="checkbox" x-model="form.work_phone" class="checkbox checkbox-xs checkbox-primary rounded border-slate-300 bg-white shadow-sm">
+          <span class="text-xs font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">Work Phone</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer group">
+          <input type="checkbox" x-model="form.phone" class="checkbox checkbox-xs checkbox-primary rounded border-slate-300 bg-white shadow-sm">
+          <span class="text-xs font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">Mobile Phone</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer group">
+          <input type="checkbox" x-model="form.email" class="checkbox checkbox-xs checkbox-primary rounded border-slate-300 bg-white shadow-sm">
+          <span class="text-xs font-bold text-slate-700 group-hover:text-indigo-300 transition-colors">Email Address</span>
+        </label>
       </div>
 
-      <hr class="border-slate-50/50">
-
-      <!-- Grid Segment 3: Temporal Vectors -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div class="lg:col-span-3">
-          <h3 class="text-[11px] font-black text-slate-900 uppercase tracking-[0.3em] mb-4 flex items-center gap-3">
-             <span class="w-2 h-4 bg-indigo-500 rounded-lg"></span> Employment & History
-          </h3>
-          <p class="text-xs text-slate-400 leading-relaxed font-semibold">Details about job tenure and connectivity.</p>
-        </div>
-        
-        <div class="lg:col-span-12 xl:col-span-9 grid grid-cols-1 md:grid-cols-3 gap-10 items-end">
-          <div class="flex flex-col gap-3">
-            <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-              Years Employed
-            </label>
-            <div class="relative">
-               <input type="number" x-model="form.years_employed" min="0" max="50"
-                class="input input-bordered input-lg w-full h-16 bg-slate-50 border-slate-100 rounded-3xl pl-20 focus:border-indigo-600 transition-all font-bold text-slate-800">
-               <span class="absolute left-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300 uppercase tracking-widest">YRS</span>
-            </div>
-          </div>
-
-          <div class="flex flex-col gap-3">
-            <label class="px-1 text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              Begin Month
-            </label>
-            <div class="relative">
-              <input type="number" x-model="form.begin_month" min="0" max="120"
-                class="input input-bordered input-lg w-full h-16 bg-slate-50 border-slate-100 rounded-3xl pl-20 focus:border-indigo-600 transition-all font-bold text-slate-800">
-              <span class="absolute left-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300 uppercase tracking-widest">MON</span>
-            </div>
-          </div>
-
-          <div class="bg-slate-900 rounded-[2.5rem] p-10 flex flex-col gap-8 shadow-2xl relative overflow-hidden md:scale-110 ml-0 md:ml-6 border-b-4 border-indigo-500">
-            <label class="flex items-center gap-5 cursor-pointer group">
-              <input type="checkbox" x-model="form.work_phone" class="checkbox checkbox-primary rounded-lg border-slate-700 bg-slate-800">
-              <div class="flex flex-col">
-                 <span class="text-[12px] font-black text-white group-hover:text-indigo-400 transition-colors">Work Phone</span>
-                 <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Workspace</span>
-              </div>
-            </label>
-            <label class="flex items-center gap-5 cursor-pointer group">
-              <input type="checkbox" x-model="form.phone" class="checkbox checkbox-primary rounded-lg border-slate-700 bg-slate-800">
-              <div class="flex flex-col">
-                 <span class="text-[12px] font-black text-white group-hover:text-indigo-400 transition-colors">Mobile Phone</span>
-                 <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Personal</span>
-              </div>
-            </label>
-            <label class="flex items-center gap-5 cursor-pointer group">
-              <input type="checkbox" x-model="form.email" class="checkbox checkbox-primary rounded-lg border-slate-700 bg-slate-800">
-              <div class="flex flex-col">
-                 <span class="text-[12px] font-black text-white group-hover:text-indigo-400 transition-colors">Email Address</span>
-                 <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Contact</span>
-              </div>
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Execution Protocol -->
-      <div class="pt-16 flex justify-center">
+      <!-- Submit -->
+      <div class="mt-6 flex justify-center">
         <button type="submit" :disabled="loading"
-          class="relative h-28 w-full max-w-3xl group overflow-hidden rounded-[3rem] bg-slate-900 border-0 text-white transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-slate-900/20">
-          
+          class="relative h-12 w-full max-w-xl group overflow-hidden rounded-xl bg-slate-900 border-0 text-white transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl">
           <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
-          
-          <div class="relative z-10 flex items-center justify-between px-16 h-full">
-            <div class="flex items-center gap-8">
-              <div class="w-18 h-18 rounded-[1.75rem] bg-white flex items-center justify-center text-indigo-600 shadow-2xl transition-all group-hover:rotate-[360deg] duration-1000">
-                <template x-if="!loading">
-                  <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </template>
-                <template x-if="loading">
-                  <span class="loading loading-ring loading-lg scale-150"></span>
-                </template>
-              </div>
-              <div class="text-left">
-                <span class="block text-3xl font-black tracking-tight leading-none uppercase font-head" x-text="loading ? 'Synthesizing...' : 'Check for Fraud'"></span>
-                <span class="block text-[11px] font-bold text-indigo-200 uppercase tracking-[0.5em] mt-2" x-text="loading ? 'Analysis in progress' : 'Evaluate with AI Model'"></span>
-              </div>
-            </div>
-            
-            <div class="hidden md:flex flex-col items-end gap-2 text-indigo-100/60">
-              <span class="text-[9px] font-black uppercase tracking-[0.2em]">Ready to analyze</span>
-              <div class="flex gap-1.5 pt-1">
-                <div class="w-4 h-1.5 rounded-full bg-white"></div>
-                <div class="w-4 h-1.5 rounded-full bg-white/40"></div>
-                <div class="w-4 h-1.5 rounded-full bg-white/10"></div>
-              </div>
-            </div>
+          <div class="relative z-10 flex items-center justify-center gap-3 h-full">
+            <template x-if="!loading">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </template>
+            <template x-if="loading">
+              <span class="loading loading-ring loading-sm"></span>
+            </template>
+            <span class="text-base font-black tracking-tight uppercase" x-text="loading ? 'Analysing...' : 'Check for Fraud'"></span>
           </div>
         </button>
       </div>
@@ -476,14 +359,14 @@
       <!-- Core Risk Analytics -->
       <div class="grid grid-cols-2 gap-6" x-show="$store.result.show">
         <div class="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center group hover:bg-indigo-50/30 transition-colors">
-          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Certainty</span>
+          <span class="text-xs font-bold text-slate-800 uppercase tracking-widest mb-2">Certainty</span>
           <div class="relative">
             <span class="text-4xl font-black text-slate-900 font-head" x-text="$store.result.probability"></span>
             <span class="text-lg font-bold text-indigo-500">%</span>
           </div>
         </div>
         <div class="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center text-center group hover:bg-indigo-50/30 transition-colors">
-          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Threshold</span>
+          <span class="text-xs font-bold text-slate-800 uppercase tracking-widest mb-2">Threshold</span>
           <span class="text-4xl font-black text-slate-900 font-head" x-text="$store.result.threshold"></span>
         </div>
       </div>
@@ -492,7 +375,7 @@
       <div class="space-y-4 px-2">
         <div class="flex justify-between items-end">
           <div class="flex flex-col">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Risk Meter</span>
+            <span class="text-xs font-bold text-slate-800 uppercase tracking-widest">Risk Meter</span>
             <span class="text-xs font-bold text-slate-600">Model score analysis</span>
           </div>
           <span class="text-xs font-black text-indigo-600 uppercase" x-text="$store.result.probability + '% Prediction'"></span>
