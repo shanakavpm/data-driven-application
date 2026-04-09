@@ -23,16 +23,43 @@ TARGET_COL      = "TARGET"
 NA_VALUES       = ["NA", "na", "N/A", ""]
 
 # feature groups
-BINARY_COLS = ["GENDER", "CAR", "REALITY"]
-BINARY_MAP  = {"M": 1, "F": 0, "Y": 1, "N": 0}
+BINARY_COLS = ["GENDER", "CAR", "REALITY", "WORK_PHONE", "PHONE", "E_MAIL"]
+BINARY_MAP  = {"M": 1, "F": 0, "Y": 1, "N": 0, "0": 0, "1": 1, 0: 0, 1: 1} # Handling various formats
 
-CATEGORICAL_COLS = ["FAMILY_TYPE", "HOUSE_TYPE", "INCOME_TYPE",
-                    "EDUCATION_TYPE", "AGE_GROUP"]
+# Nominal: No inherent order (Use One-Hot Encoding)
+NOMINAL_COLS = ["FAMILY_TYPE", "HOUSE_TYPE", "INCOME_TYPE"]
+
+# Ordinal: Clear logical order (Use Ordinal Encoding)
+ORDINAL_COLS = ["EDUCATION_TYPE", "AGE_GROUP"]
+
+# Mapping for Ordinal Categories
+ORDINAL_MAPS = {
+    "EDUCATION_TYPE": {
+        "Lower secondary": 0,
+        "Secondary / secondary special": 1,
+        "Incomplete higher": 2,
+        "Higher education": 3,
+        "Academic degree": 4
+    },
+    "AGE_GROUP": {
+        "Young": 0,
+        "Adult": 1,
+        "Middle": 2,
+        "Senior": 3,
+        "Elderly": 4
+    }
+}
 
 NUMERIC_OUTLIER_COLS = ["INCOME", "NO_OF_CHILD", "FAMILY SIZE",
                         "BEGIN_MONTH", "AGE", "YEARS_EMPLOYED"]
 
-DROP_COLS = ["ID", "FLAG_MOBIL"]
+NUMERICAL_COLS = [
+    "GENDER", "CAR", "REALITY", "NO_OF_CHILD", "WORK_PHONE", "PHONE", "E_MAIL",
+    "FAMILY SIZE", "BEGIN_MONTH", "AGE", "YEARS_EMPLOYED", "INCOME",
+    "INCOME_PER_MEMBER", "EMPLOYMENT_RATIO", "COMM_SCORE"
+]
+
+ALL_FEATURE_COLS = NOMINAL_COLS + ORDINAL_COLS + NUMERICAL_COLS
 
 # model constants
 TEST_SIZE    = 0.2

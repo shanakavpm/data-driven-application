@@ -1,7 +1,6 @@
 """
-  Model 1: Random Forest (Baseline)
-  Model 2: Logistic Regression (Recall Focus)
-  Improvements: GridSearchCV + Threshold Tuning
+Module for training and evaluating credit card fraud detection models.
+Implements a leakage-free pipeline with GridSearchCV and threshold optimization.
 """
 
 import os
@@ -12,10 +11,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 from sklearn.model_selection import (
-    train_test_split, GridSearchCV, StratifiedKFold,
+    train_test_split, GridSearchCV, StratifiedKFold, cross_val_predict
 )
-from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
@@ -24,6 +24,7 @@ from sklearn.metrics import (
     confusion_matrix, classification_report,
 )
 from imblearn.over_sampling import SMOTE
+from imblearn.pipeline import Pipeline as ImbPipeline
 
 import config as cfg
 from src.utils import section, sub, save_pkl
@@ -33,134 +34,164 @@ def build_and_evaluate(df):
     """Run the full modelling pipeline and return metrics for JSON export."""
     section("TASK 3: MODEL BUILDING")
 
-    df_enc, label_encoders = _encode(df.copy())
-    X, y, feature_names = _select_features(df_enc)
-    (X_train, X_test, y_train, y_test,
-     X_train_res, y_train_res, scaler) = _split_scale_smote(X, y)
+    # 1. Feature Selection & Binary Mapping
+    df = df.copy()
+    for col in cfg.BINARY_COLS:
+        if col in df.columns:
+            df[col] = df[col].map(cfg.BINARY_MAP)
+
+    # Use the definitive feature list from config
+    X = df[cfg.ALL_FEATURE_COLS]
+    y = df[cfg.TARGET_COL]
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=cfg.TEST_SIZE,
+        random_state=cfg.RANDOM_STATE, stratify=y,
+    )
+    print(f"  Train: {X_train.shape[0]:,}  |  Test: {X_test.shape[0]:,}")
+
+    # 2. Define Preprocessing Transformer
+    # Extract categories from maps to ensure correct order
+    edu_cats = sorted(cfg.ORDINAL_MAPS["EDUCATION_TYPE"], key=cfg.ORDINAL_MAPS["EDUCATION_TYPE"].get)
+    age_cats = sorted(cfg.ORDINAL_MAPS["AGE_GROUP"], key=cfg.ORDINAL_MAPS["AGE_GROUP"].get)
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("nom", OneHotEncoder(handle_unknown="ignore", sparse_output=False), cfg.NOMINAL_COLS),
+            ("ord", OrdinalEncoder(categories=[edu_cats, age_cats], 
+                                   handle_unknown="use_encoded_value", unknown_value=-1), cfg.ORDINAL_COLS),
+            ("num", StandardScaler(), cfg.NUMERICAL_COLS),
+        ],
+        remainder="passthrough"
+    )
+
+    def create_pipeline(classifier):
+        """Encapsulate preprocessing and model into a single leakage-free Pipeline."""
+        return ImbPipeline(steps=[
+            ("preprocessor", preprocessor),
+            ("smote", SMOTE(random_state=cfg.RANDOM_STATE)),
+            ("clf", classifier)
+        ])
 
     results = {}
 
-    # model 1: random forest baseline
-    rf_base = RandomForestClassifier(
+    # Model 1: Random Forest Baseline
+    rf_base_pipe = create_pipeline(RandomForestClassifier(
         n_estimators=100, class_weight="balanced",
-        random_state=cfg.RANDOM_STATE, n_jobs=-1,
-    )
+        random_state=cfg.RANDOM_STATE, n_jobs=1,
+    ))
     results["Random Forest (Baseline)"] = _train_evaluate(
-        "Random Forest (Baseline)", rf_base,
-        X_train_res, y_train_res, X_test, y_test,
+        "Random Forest (Baseline)", rf_base_pipe, X_train, y_train, X_test, y_test
     )
 
-    # model 2: logistic regression
-    lr = LogisticRegression(
+    # Model 2: Logistic Regression
+    lr_pipe = create_pipeline(LogisticRegression(
         class_weight="balanced", max_iter=1000,
         random_state=cfg.RANDOM_STATE, solver="lbfgs",
-    )
+    ))
     results["Logistic Regression"] = _train_evaluate(
-        "Logistic Regression", lr,
-        X_train_res, y_train_res, X_test, y_test,
+        "Logistic Regression", lr_pipe, X_train, y_train, X_test, y_test
     )
 
-    # improvement 1: GridSearchCV on random forest
+    # Improvement 1: GridSearchCV on Random Forest
     sub("Improvement 1 - Hyperparameter Tuning (GridSearchCV)")
-    best_params, rf_tuned = _grid_search_rf(X_train_res, y_train_res)
+    param_grid = {
+        'clf__n_estimators': [100, 200],
+        'clf__max_depth': [None, 10, 20],
+        'clf__min_samples_leaf': [1, 2]
+    }
+    
+    rf_pipe = create_pipeline(RandomForestClassifier(
+        class_weight="balanced", random_state=cfg.RANDOM_STATE
+    ))
+    
+    print(f"  Running GridSearchCV ({len(param_grid['clf__n_estimators'])*len(param_grid['clf__max_depth'])*len(param_grid['clf__min_samples_leaf'])} combos x 3 folds)...")
+    
+    gs = GridSearchCV(
+        rf_pipe, param_grid, cv=3, scoring='f1', n_jobs=1, verbose=0
+    )
+    gs.fit(X_train, y_train)
+    
+    rf_tuned_pipe = gs.best_estimator_
+    print(f"  Best params : {gs.best_params_}")
+    print(f"  Best CV F1  : {gs.best_score_:.4f} (Leakage-protected)")
+    
     results["RF + GridSearchCV"] = _train_evaluate(
-        "RF + GridSearchCV", rf_tuned,
-        X_train_res, y_train_res, X_test, y_test,
+        "RF + GridSearchCV", rf_tuned_pipe, X_train, y_train, X_test, y_test
     )
 
-    # improvement 2: threshold optimisation
-    sub("Improvement 2 - Threshold Optimisation")
-    y_proba = rf_tuned.predict_proba(X_test)[:, 1]
-    opt_thresh, opt_f1 = _find_optimal_threshold(y_test, y_proba)
-    print(f"  Optimal threshold : {opt_thresh:.2f}")
-    print(f"  F1 at threshold   : {opt_f1:.4f}")
+    # Improvement 2: Threshold Optimisation (Methodologically Rigorous)
+    sub("Improvement 2 - Threshold Optimisation (Tuned on Train CV)")
+    # Get cross-validated probabilities on training set to find optimal threshold
+    y_train_proba = cross_val_predict(
+        rf_tuned_pipe, X_train, y_train, cv=3, method="predict_proba", n_jobs=1
+    )[:, 1]
+    
+    opt_thresh, opt_f1_train = _find_optimal_threshold(y_train, y_train_proba)
+    print(f"  Optimal threshold (from Train CV) : {opt_thresh:.2f}")
+    print(f"  Expected F1 on Train (CV)         : {opt_f1_train:.4f}")
 
-    y_pred_opt = (y_proba >= opt_thresh).astype(int)
+    # Evaluate on Test Set once using the locked threshold
+    y_test_proba = rf_tuned_pipe.predict_proba(X_test)[:, 1]
+    y_test_pred_opt = (y_test_proba >= opt_thresh).astype(int)
+    
     results["RF + Tuned Threshold"] = _metrics_dict(
-        rf_tuned, y_test, y_pred_opt, y_proba,
+        rf_tuned_pipe, y_test, y_test_pred_opt, y_test_proba
     )
-    _print_report("RF + Tuned Threshold", results["RF + Tuned Threshold"],
-                  y_test, y_pred_opt)
+    _print_report("RF + Tuned Threshold", results["RF + Tuned Threshold"], y_test, y_test_pred_opt)
 
     _print_comparison(results)
 
+    # Feature names after transformation
+    feature_names = _get_feature_names(preprocessor, X_train)
+
     # save plots and model files
-    plot_files = _save_model_plots(results, y_test, feature_names, rf_tuned)
+    plot_files = _save_model_plots(results, y_test, feature_names, rf_tuned_pipe.named_steps["clf"])
 
     sub("Saving model files")
-    save_pkl(rf_base,        os.path.join(cfg.MODEL_DIR, "rf_baseline.pkl"))
-    save_pkl(lr,             os.path.join(cfg.MODEL_DIR, "logistic_regression.pkl"))
-    save_pkl(rf_tuned,       os.path.join(cfg.MODEL_DIR, "rf_improved.pkl"))
-    save_pkl(scaler,         os.path.join(cfg.MODEL_DIR, "scaler.pkl"))
-    save_pkl(label_encoders, os.path.join(cfg.MODEL_DIR, "label_encoders.pkl"))
+    save_pkl(rf_base_pipe,   os.path.join(cfg.MODEL_DIR, "rf_baseline.pkl"))
+    save_pkl(lr_pipe,        os.path.join(cfg.MODEL_DIR, "logistic_regression.pkl"))
+    save_pkl(rf_tuned_pipe,  os.path.join(cfg.MODEL_DIR, "rf_improved.pkl"))
+    # The preprocessor is inside the pipeline, but we save individual components if needed for references
     save_pkl(feature_names,  os.path.join(cfg.MODEL_DIR, "feature_names.pkl"))
     save_pkl(opt_thresh,     os.path.join(cfg.MODEL_DIR, "optimal_threshold.pkl"))
     print("  All model files saved to models/")
 
     metrics_export = {
-        name: {k: v for k, v in m.items() if k != "model"}
+        name: {k: v for k, v in m.items() if k not in ["model", "y_pred", "y_prob"]}
         for name, m in results.items()
     }
     return {
         "models": metrics_export,
         "improvement": {
-            "best_params": best_params,
+            "best_params": gs.best_params_,
             "optimal_threshold": opt_thresh,
-            "optimal_f1": opt_f1,
+            "optimal_f1": opt_f1_train,
         },
         "feature_names": feature_names,
         "plots": plot_files,
     }
 
 
-# --- Encoding ---
-
-def _encode(df):
-    sub("Encoding")
-    for col in cfg.BINARY_COLS:
-        df[col] = df[col].map(cfg.BINARY_MAP)
-        print(f"  {col}: binary mapped")
-
-    encoders = {}
-    for col in cfg.CATEGORICAL_COLS:
-        le = LabelEncoder()
-        df[col] = le.fit_transform(df[col].astype(str))
-        encoders[col] = le
-        print(f"  {col}: label encoded ({len(le.classes_)} classes)")
-    return df, encoders
-
-
-def _select_features(df):
-    sub("Feature Selection")
-    for c in cfg.DROP_COLS:
-        if c in df.columns:
-            df = df.drop(columns=[c])
-            print(f"  Dropped: {c}")
-
-    X = df.drop(columns=[cfg.TARGET_COL])
-    y = df[cfg.TARGET_COL]
-    names = X.columns.tolist()
-    print(f"  Features ({len(names)}): {names}")
-    return X, y, names
-
-
-def _split_scale_smote(X, y):
-    sub("Split / Scale / SMOTE")
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        X, y, test_size=cfg.TEST_SIZE,
-        random_state=cfg.RANDOM_STATE, stratify=y,
-    )
-    print(f"  Train: {X_tr.shape[0]:,}  |  Test: {X_te.shape[0]:,}")
-
-    scaler = StandardScaler()
-    X_tr_s = scaler.fit_transform(X_tr)
-    X_te_s = scaler.transform(X_te)
-
-    smote = SMOTE(random_state=cfg.RANDOM_STATE)
-    X_tr_r, y_tr_r = smote.fit_resample(X_tr_s, y_tr)
-    print(f"  After SMOTE - 0: {(y_tr_r == 0).sum():,}  |  1: {(y_tr_r == 1).sum():,}")
-
-    return X_tr_s, X_te_s, y_tr, y_te, X_tr_r, y_tr_r, scaler
+def _get_feature_names(column_transformer, X):
+    """Extract feature names after transformation."""
+    new_names = []
+    for name, trans, cols in column_transformer.transformers_:
+        if name == "remainder":
+            # For passthrough columns
+            if trans == "passthrough":
+                rem_cols = [X.columns[i] for i in cols]
+                new_names.extend(rem_cols)
+            continue
+        
+        if hasattr(trans, "get_feature_names_out"):
+            # OneHot, etc
+            names = trans.get_feature_names_out(cols)
+            new_names.extend(names)
+        else:
+            # Scaler, Ordinal usually don't rename or we keep original
+            new_names.extend(cols)
+    return new_names
 
 
 # --- Training and evaluation ---
@@ -211,32 +242,8 @@ def _print_comparison(results):
     print("  - Accuracy is misleadingly high due to class imbalance (~98% non-fraud).")
     print("  - Precision vs Recall are conflicting: LR has higher recall")
     print("    but very low precision; RF has better precision but lower recall.")
-    print("  - Threshold optimisation boosts recall & F1 by lowering the decision boundary")
-    print("    below 0.5, accepting more false positives to catch more fraud.")
-    print("  - ROC-AUC is threshold-independent and shows the improved RF performs best.")
-
-
-# --- Grid search ---
-
-def _grid_search_rf(X_tr, y_tr):
-    param_grid = {
-        "n_estimators":      [100, 200, 300],
-        "max_depth":         [10, 20, None],
-        "min_samples_split": [2, 5],
-        "min_samples_leaf":  [1, 2],
-    }
-    cv = StratifiedKFold(n_splits=cfg.CV_FOLDS, shuffle=True,
-                         random_state=cfg.RANDOM_STATE)
-    gs = GridSearchCV(
-        RandomForestClassifier(class_weight="balanced",
-                               random_state=cfg.RANDOM_STATE, n_jobs=-1),
-        param_grid, cv=cv, scoring="f1", n_jobs=-1, verbose=0,
-    )
-    print("  Running GridSearchCV (36 combos x 3 folds)...")
-    gs.fit(X_tr, y_tr)
-    print(f"  Best params : {gs.best_params_}")
-    print(f"  Best CV F1  : {gs.best_score_:.4f}")
-    return gs.best_params_, gs.best_estimator_
+    print("  - Threshold optimisation (protected by CV) boosts recall & F1.")
+    print("  - Best CV F1 is now leakage-protected and reflects true generalization.")
 
 
 # --- Threshold optimisation ---

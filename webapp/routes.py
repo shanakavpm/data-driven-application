@@ -58,7 +58,7 @@ def prediction():
 
 @main_bp.route("/predict", methods=["POST"])
 def predict():
-    """Accept form JSON, return fraud prediction."""
+    """Accept form JSON, return fraud prediction using Pipeline models."""
     data = request.get_json(force=True)
 
     model_files = {
@@ -67,12 +67,10 @@ def predict():
         "rf_improved": "rf_improved.pkl",
     }
     model_choice = data.get("model_choice", "rf_improved")
-    model = _model(model_files.get(model_choice, "rf_improved.pkl"))
-    scaler = _model("scaler.pkl")
-    encoders = _model("label_encoders.pkl")
-    feature_names = _model("feature_names.pkl")
-
-    # Determine thresholds
+    # Load the full pipeline!
+    model_pipeline = _model(model_files.get(model_choice, "rf_improved.pkl"))
+    
+    # Threshold handling
     threshold = 0.5
     if model_choice == "rf_improved":
         try:
@@ -80,27 +78,16 @@ def predict():
         except:
             threshold = 0.5
 
-    # Process input data
-    row, age = _extract_row(data)
-
-    # Encode categorical fields
-    cat_cols = ["FAMILY_TYPE", "HOUSE_TYPE", "INCOME_TYPE", "EDUCATION_TYPE"]
-    for col in cat_cols:
-        le = encoders.get(col)
-        val = data.get(col.lower(), "Other")
-        if le and val in le.classes_:
-            row[col] = int(le.transform([val])[0])
-
-    # Map shared age group logic
-    ag_label = map_age_group(age)
-    le_ag = encoders.get("AGE_GROUP")
-    if le_ag and ag_label in le_ag.classes_:
-        row["AGE_GROUP"] = int(le_ag.transform([ag_label])[0])
-
-    # Prediction sequence
-    vec = np.array([row.get(f, 0) for f in feature_names]).reshape(1, -1)
-    vec_scaled = scaler.transform(vec)
-    prob = model.predict_proba(vec_scaled)[0]
+    # Process and Map Binary inputs
+    row_dict, age = _extract_row(data)
+    
+    # Convert to DataFrame and enforce column order
+    import pandas as pd
+    df_single = pd.DataFrame([row_dict])
+    df_single = df_single[cfg.ALL_FEATURE_COLS]
+    
+    # Prediction
+    prob = model_pipeline.predict_proba(df_single)[0]
     pred = int(prob[1] >= threshold)
 
     return jsonify({
@@ -112,11 +99,16 @@ def predict():
 
 
 def _extract_row(data):
-    """Internal helper to convert JSON data into a feature-ready dictionary."""
+    """Internal helper to convert JSON data into a feature-ready dictionary for the Pipeline."""
     age = int(data.get("age", 35))
     income = float(data.get("income", 150000))
     family_size = int(data.get("family_size", 2))
     years_emp = int(data.get("years_employed", 5))
+
+    # Binary features mapping
+    gender = cfg.BINARY_MAP.get(data.get("gender", "F"), 0)
+    car = cfg.BINARY_MAP.get(data.get("car", "N"), 0)
+    reality = cfg.BINARY_MAP.get(data.get("reality", "Y"), 1)
 
     # Communication channels count
     comm_score = (int(data.get("work_phone", 0)) +
@@ -124,12 +116,12 @@ def _extract_row(data):
                   int(data.get("email", 0)))
 
     return {
-        "GENDER":           cfg.BINARY_MAP.get(data.get("gender", "F")),
-        "CAR":              cfg.BINARY_MAP.get(data.get("car", "N")),
-        "REALITY":          cfg.BINARY_MAP.get(data.get("reality", "Y")),
+        "GENDER":           gender,
+        "CAR":              car,
+        "REALITY":          reality,
         "NO_OF_CHILD":      int(data.get("no_children", 0)),
-        "FAMILY_TYPE":      0,
-        "HOUSE_TYPE":       0,
+        "FAMILY_TYPE":      data.get("family_type", "Married"),
+        "HOUSE_TYPE":       data.get("house_type", "House / apartment"),
         "WORK_PHONE":       int(data.get("work_phone", 0)),
         "PHONE":            int(data.get("phone", 0)),
         "E_MAIL":           int(data.get("email", 0)),
@@ -138,10 +130,10 @@ def _extract_row(data):
         "AGE":              age,
         "YEARS_EMPLOYED":   years_emp,
         "INCOME":           income,
-        "INCOME_TYPE":      0,
-        "EDUCATION_TYPE":   0,
+        "INCOME_TYPE":      data.get("income_type", "Working"),
+        "EDUCATION_TYPE":   data.get("education_type", "Higher education"),
         "INCOME_PER_MEMBER": income / max(family_size, 1),
-        "AGE_GROUP":        0,
+        "AGE_GROUP":        map_age_group(age),
         "EMPLOYMENT_RATIO": years_emp / max(age, 1),
         "COMM_SCORE":       comm_score,
     }, age
