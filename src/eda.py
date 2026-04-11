@@ -69,9 +69,9 @@ def generate_visualisations(df):
 
     # univariate
     sub("Univariate Analysis")
-    filenames["univariate"] += [
-        _plot_target(df),
-    ]
+    filenames["univariate"].append(_plot_target(df))
+    filenames["univariate"].append(_plot_distributions(df))
+    filenames["univariate"].extend(_plot_class_overlaps(df))
 
     # bivariate
     sub("Bivariate Analysis")
@@ -117,6 +117,46 @@ def _plot_target(df):
     ax.set_title("Target Variable Distribution", fontweight="bold", pad=20)
     ax.set_ylabel("Count")
     return _save(fig, "target_distribution.png")
+
+
+def _plot_distributions(df):
+    """Plot skewness and outliers for Income and Age."""
+    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+    
+    # Income Skewness & Outliers
+    sns.histplot(df["INCOME"], kde=True, ax=axes[0, 0], color="skyblue")
+    axes[0, 0].set_title("Annual Income Distribution (Skewness)", fontweight="bold")
+    
+    sns.boxplot(x=df["INCOME"], ax=axes[0, 1], color="lightcoral")
+    axes[0, 1].set_title("Annual Income Boxplot (Outliers)", fontweight="bold")
+    
+    # Age Skewness & Outliers
+    sns.histplot(df["AGE"], kde=True, ax=axes[1, 0], color="lightgreen")
+    axes[1, 0].set_title("Age Distribution (Skewness)", fontweight="bold")
+    
+    sns.boxplot(x=df["AGE"], ax=axes[1, 1], color="gold")
+    axes[1, 1].set_title("Age Boxplot (Outliers)", fontweight="bold")
+    
+    return _save(fig, "demographic_distributions.png")
+
+
+def _plot_class_overlaps(df):
+    """Plot smooth KDE 'humps' to show statistical overlap between classes."""
+    # Income Overlap (Smooth KDE)
+    fig_inc, ax_inc = plt.subplots(figsize=(10, 6))
+    sns.kdeplot(data=df, x="INCOME", hue=cfg.TARGET_COL, fill=True, common_norm=False, 
+                palette={0: COLORS["safe"], 1: COLORS["fraud"]}, ax=ax_inc)
+    ax_inc.set_title("Statistical Overlap: Annual Income by Target Class", fontweight="bold")
+    _save(fig_inc, "income_overlap.png")
+
+    # Age Overlap (Smooth KDE)
+    fig_age, ax_age = plt.subplots(figsize=(10, 6))
+    sns.kdeplot(data=df, x="AGE", hue=cfg.TARGET_COL, fill=True, common_norm=False,
+                palette={0: COLORS["safe"], 1: COLORS["fraud"]}, ax=ax_age)
+    ax_age.set_title("Statistical Overlap: Age by Target Class", fontweight="bold")
+    _save(fig_age, "age_overlap.png")
+
+    return ["income_overlap.png", "age_overlap.png"]
 
 
 def _plot_box_by_target(df, col, title):

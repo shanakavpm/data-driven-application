@@ -355,7 +355,10 @@
   },
   "eda_plots": {
     "univariate": [
-      "target_distribution.png"
+      "target_distribution.png",
+      "demographic_distributions.png",
+      "income_overlap.png",
+      "age_overlap.png"
     ],
     "bivariate": [
       "income_by_target.png",
