@@ -127,7 +127,7 @@ def build_and_evaluate(df):
         rf_tuned_pipe, X_train, y_train, cv=3, method="predict_proba", n_jobs=1
     )[:, 1]
     
-    opt_thresh, opt_f1_train = _find_optimal_threshold(y_train, y_train_proba)
+    opt_thresh, opt_f1_train, tune_data = _find_optimal_threshold(y_train, y_train_proba)
     print(f"  Optimal threshold (from Train CV) : {opt_thresh:.2f}")
     print(f"  Expected F1 on Train (CV)         : {opt_f1_train:.4f}")
 
@@ -146,7 +146,7 @@ def build_and_evaluate(df):
     feature_names = _get_feature_names(preprocessor, X_train)
 
     # save plots and model files
-    plot_files = _save_model_plots(results, y_test, feature_names, rf_tuned_pipe.named_steps["clf"])
+    plot_files = _save_model_plots(results, y_test, feature_names, rf_tuned_pipe.named_steps["clf"], tune_data)
 
     sub("Saving model files")
     save_pkl(rf_base_pipe,   os.path.join(cfg.MODEL_DIR, "rf_baseline.pkl"))
@@ -256,17 +256,23 @@ def _find_optimal_threshold(y_true, y_proba):
     for the fraud class.
     """
     best_f1, best_t = 0, 0.5
-    for t in np.arange(0.05, 0.95, 0.01):
+    thresholds = list(np.arange(0.05, 0.95, 0.01))
+    f1_scores = []
+    
+    for t in thresholds:
         preds = (y_proba >= t).astype(int)
         f1 = f1_score(y_true, preds, zero_division=0)
+        f1_scores.append(f1)
         if f1 > best_f1:
             best_f1, best_t = f1, t
-    return round(best_t, 2), round(best_f1, 4)
+            
+    tune_data = {"thresholds": thresholds, "f1_scores": f1_scores, "opt_t": best_t, "opt_f1": best_f1}
+    return round(best_t, 2), round(best_f1, 4), tune_data
 
 
 # --- Model evaluation plots ---
 
-def _save_model_plots(results, y_test, feature_names, rf_model):
+def _save_model_plots(results, y_test, feature_names, rf_model, tune_data):
     files = []
 
     # ROC curves
@@ -356,5 +362,25 @@ def _save_model_plots(results, y_test, feature_names, rf_model):
     plt.close(fig)
     files.append(fname)
     print(f"  Saved: {fname}")
+
+    # threshold tuning plot
+    if tune_data:
+        fig, ax = plt.subplots(figsize=(8, 5))
+        ax.plot(tune_data["thresholds"], tune_data["f1_scores"], color="#e74c3c", lw=2)
+        ax.axvline(tune_data["opt_t"], color="black", linestyle="--", alpha=0.6, 
+                   label=f"Optimal Threshold ({tune_data['opt_t']:.2f})")
+        ax.scatter(tune_data["opt_t"], tune_data["opt_f1"], color="black")
+        
+        ax.set_title("Effect of Threshold Tuning on F1-Score", fontweight="bold")
+        ax.set_xlabel("Classification Threshold")
+        ax.set_ylabel("F1-Score")
+        ax.legend()
+        ax.grid(alpha=0.3)
+        fig.tight_layout()
+        fname = "threshold_tuning.png"
+        fig.savefig(os.path.join(cfg.PLOT_DIR, fname), dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        files.append(fname)
+        print(f"  Saved: {fname}")
 
     return files

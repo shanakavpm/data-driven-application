@@ -449,6 +449,7 @@
     "roc_curves.png",
     "confusion_matrices.png",
     "feature_importance.png",
-    "model_comparison.png"
+    "model_comparison.png",
+    "threshold_tuning.png"
   ]
 }
